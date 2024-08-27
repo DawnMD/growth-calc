@@ -1,4 +1,5 @@
 import "@/styles/globals.css";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 import { GeistSans } from "geist/font/sans";
 import { type Metadata } from "next";
@@ -16,6 +17,12 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className={`${GeistSans.variable}`}>
+      <head>
+        <link
+          href="https://api.mapbox.com/mapbox-gl-js/v3.5.1/mapbox-gl.css"
+          rel="stylesheet"
+        ></link>
+      </head>
       <body>
         <TRPCReactProvider>{children}</TRPCReactProvider>
       </body>

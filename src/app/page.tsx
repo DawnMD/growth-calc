@@ -70,12 +70,15 @@ import {
 import { childData } from "data/childData";
 import { GrowthWeightChart } from "@/components/GrowthWeightChart";
 import { useState } from "react";
+import { state } from "data/states";
+import { Map } from "@/components/Maps";
 
 const formSchema = z.object({
   age: z.number().int().min(0).max(96),
-  height: z.number().int(),
-  weight: z.number(),
+  height: z.number().int().min(1),
+  weight: z.number().int().min(1),
   gender: z.union([z.literal("boy"), z.literal("girl")]),
+  state: z.string().min(1),
 });
 
 export default function Home() {
@@ -86,11 +89,14 @@ export default function Home() {
       height: 0,
       weight: 0,
       gender: undefined,
+      state: "",
     },
   });
 
   const [heightStatus, setHeightStatus] = useState<string>("");
   const [weightStatus, setWeightStatus] = useState<string>("");
+  const [lat, setLat] = useState<null | number>(null);
+  const [lng, setLng] = useState<null | number>(null);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const data = childData[values.gender];
@@ -125,10 +131,17 @@ export default function Home() {
 
     setHeightStatus(heightStatus);
     setWeightStatus(weightStatus);
+
+    const stateData = state.find((s) => s.code === parseInt(values.state));
+
+    if (stateData) {
+      setLat(stateData.coordinates.lat);
+      setLng(stateData.coordinates.lng);
+    }
   }
 
   return (
-    <>
+    <div>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
           <FormField
@@ -209,18 +222,48 @@ export default function Home() {
               </FormItem>
             )}
           />
+          <FormField
+            control={form.control}
+            name="state"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>State</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select state" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {state.map((s) => (
+                      <SelectItem key={s.code} value={s.code.toString()}>
+                        {s.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <Button type="submit">Submit</Button>
         </form>
       </Form>
       {form.formState.isSubmitSuccessful && (
-        <GrowthWeightChart
-          age={form.getValues("age")}
-          height={form.getValues("height")}
-          weight={form.getValues("weight")}
-          heightStatus={heightStatus}
-          weightStatus={weightStatus}
-        />
+        <>
+          <GrowthWeightChart
+            age={form.getValues("age")}
+            height={form.getValues("height")}
+            weight={form.getValues("weight")}
+            heightStatus={heightStatus}
+            weightStatus={weightStatus}
+          />
+          {lat && lng && <Map lat={lat} lng={lng} />}
+        </>
       )}
-    </>
+    </div>
   );
 }
