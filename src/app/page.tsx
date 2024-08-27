@@ -105,9 +105,9 @@ export default function Home() {
 
     // Determine weight status
     let weightStatus;
-    if (values.weight < 0.9 * refWeight) {
+    if (values.weight < 0.74 * refWeight) {
       weightStatus = "Underweight";
-    } else if (values.weight > 1.1 * refWeight) {
+    } else if (values.weight > 1.24 * refWeight) {
       weightStatus = "Overweight";
     } else {
       weightStatus = "Normal weight";
@@ -115,8 +115,10 @@ export default function Home() {
 
     // Determine height status
     let heightStatus;
-    if (values.height < 0.9 * refHeight) {
+    if (values.height < 0.94 * refHeight) {
       heightStatus = "Stunted height";
+    } else if (values.height > 1.06 * refHeight) {
+      heightStatus = "Tall height";
     } else {
       heightStatus = "Normal height";
     }
