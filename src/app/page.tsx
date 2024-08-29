@@ -71,7 +71,8 @@ import { childData } from "data/childData";
 import { GrowthWeightChart } from "@/components/GrowthWeightChart";
 import { useState } from "react";
 import { state } from "data/states";
-import { Map } from "@/components/Maps";
+import { env } from "@/env";
+import ReactMapGL, { Marker } from "react-map-gl";
 
 const formSchema = z.object({
   age: z.number().int().min(0).max(96),
@@ -95,8 +96,11 @@ export default function Home() {
 
   const [heightStatus, setHeightStatus] = useState<string>("");
   const [weightStatus, setWeightStatus] = useState<string>("");
-  const [lat, setLat] = useState<null | number>(null);
-  const [lng, setLng] = useState<null | number>(null);
+  const [viewState, setViewState] = useState({
+    zoom: 4,
+    latitude: 20.5937,
+    longitude: 78.9629,
+  });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     const data = childData[values.gender];
@@ -135,8 +139,11 @@ export default function Home() {
     const stateData = state.find((s) => s.code === parseInt(values.state));
 
     if (stateData) {
-      setLat(stateData.coordinates.lat);
-      setLng(stateData.coordinates.lng);
+      setViewState({
+        zoom: 5,
+        longitude: stateData.coordinates.lng,
+        latitude: stateData.coordinates.lat,
+      });
     }
   }
 
@@ -261,7 +268,19 @@ export default function Home() {
             heightStatus={heightStatus}
             weightStatus={weightStatus}
           />
-          {lat && lng && <Map lat={lat} lng={lng} />}
+          <ReactMapGL
+            reuseMaps
+            style={{ width: "100%", height: "50vh" }}
+            mapboxAccessToken={env.NEXT_PUBLIC_MAPBOX_TOKEN}
+            mapStyle="mapbox://styles/haildawn/cm0cprcdz00s801qycaij2uak"
+            {...viewState}
+          >
+            <Marker
+              latitude={viewState.latitude}
+              longitude={viewState.longitude}
+              color="red"
+            />
+          </ReactMapGL>
         </>
       )}
     </div>
