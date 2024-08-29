@@ -12,6 +12,28 @@ const config = {
   eslint: {
     ignoreDuringBuilds: true,
   },
+  //add cors for all paths
+  async headers() {
+    return [
+      {
+        source: "/(.*)",
+        headers: [
+          {
+            key: "Access-Control-Allow-Origin",
+            value: "*",
+          },
+          {
+            key: "Access-Control-Allow-Methods",
+            value: "GET,OPTIONS",
+          },
+          {
+            key: "Access-Control-Allow-Headers",
+            value: "*",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default config;
